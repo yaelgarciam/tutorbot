@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TutorBot UI</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --accent: #22d3ee;
+      --accent-2: #a855f7;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --radius: 14px;
+      --shadow: 0 15px 50px rgba(0,0,0,0.35);
+      --mono: "JetBrains Mono", "SFMono-Regular", ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: "Manrope", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      font-family: var(--sans);
+      background: radial-gradient(circle at 20% 20%, rgba(168,85,247,0.08), transparent 30%),
+                  radial-gradient(circle at 80% 10%, rgba(34,211,238,0.08), transparent 28%),
+                  radial-gradient(circle at 60% 80%, rgba(14,165,233,0.08), transparent 32%),
+                  var(--bg);
+      color: var(--text);
+      padding: 24px;
+    }
+
+    .shell {
+      width: min(1100px, 100%);
+      background: linear-gradient(145deg, rgba(34,211,238,0.08), rgba(168,85,247,0.1)), var(--panel);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(6px);
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 28px;
+      letter-spacing: -0.02em;
+    }
+
+    p.sub {
+      margin: 0 0 18px;
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+
+    .card h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+      letter-spacing: -0.01em;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    input, select, textarea, button {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.25);
+      color: var(--text);
+      padding: 10px 12px;
+      font-family: var(--sans);
+      font-size: 14px;
+    }
+
+    textarea { resize: vertical; min-height: 96px; }
+
+    button {
+      cursor: pointer;
+      border: none;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      transition: transform 0.08s ease, box-shadow 0.2s ease;
+      box-shadow: 0 10px 30px rgba(34,211,238,0.25);
+    }
+
+    button:hover { transform: translateY(-1px) scale(1.01); }
+    button:active { transform: translateY(0) scale(0.99); }
+
+    .list {
+      display: grid;
+      gap: 10px;
+      max-height: 280px;
+      overflow: auto;
+      padding: 4px;
+    }
+
+    .item-card {
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+
+    .item-card h3 { margin: 0 0 6px; font-size: 16px; }
+    .muted { color: var(--muted); font-size: 13px; }
+    .ok { color: #4ade80; }
+    .bad { color: #f87171; }
+
+    .status {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      min-height: 18px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      background: rgba(34,211,238,0.15);
+      color: #67e8f9;
+      border: 1px solid rgba(34,211,238,0.2);
+      margin-left: 8px;
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <h1>TutorBot</h1>
+    <p class="sub">Consulta estudiantes, explora ejercicios y envía respuestas desde una interfaz simple.</p>
+
+    <div class="grid">
+      <section class="card">
+        <h2>Estudiantes<span class="badge">GET /api/students</span></h2>
+        <div style="display:flex; gap:8px; align-items:flex-end; margin-bottom:10px;">
+          <div style="flex:1;">
+            <label for="studentId">ID específico (opcional)</label>
+            <input id="studentId" type="number" placeholder="1644973" />
+          </div>
+          <button id="loadStudents" style="width:150px;">Consultar</button>
+        </div>
+        <div class="list" id="studentsOutput"></div>
+        <div class="status" id="studentsStatus"></div>
+      </section>
+
+      <section class="card">
+        <h2>Registrar estudiante<span class="badge">POST /api/students</span></h2>
+        <label for="newName">Nombre</label>
+        <input id="newName" type="text" placeholder="Adolfo Arroyo" />
+        <label for="newAge">Edad</label>
+        <input id="newAge" type="number" min="1" max="120" placeholder="20" />
+        <label for="newLevel">Nivel</label>
+        <select id="newLevel">
+          <option value="beginner">Beginner</option>
+          <option value="intermediate">Intermediate</option>
+          <option value="advanced">Advanced</option>
+        </select>
+        <button id="createStudent" style="margin-top:10px;">Crear estudiante</button>
+        <div class="list" id="createOutput"></div>
+        <div class="status" id="createStatus"></div>
+      </section>
+
+      <section class="card">
+        <h2>Ejercicios<span class="badge">GET /api/exercises</span></h2>
+        <div style="display:flex; gap:8px; align-items:flex-end; margin-bottom:10px;">
+          <div style="flex:1;">
+            <label for="difficulty">Dificultad (opcional)</label>
+            <select id="difficulty">
+              <option value="">Todas</option>
+              <option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+          </div>
+          <button id="loadExercises" style="width:150px;">Consultar</button>
+        </div>
+        <div class="list" id="exercisesOutput"></div>
+        <div class="status" id="exercisesStatus"></div>
+      </section>
+
+      <section class="card">
+        <h2>Enviar respuesta<span class="badge">POST /api/exercises/submit</span></h2>
+        <label for="answerStudentId">ID estudiante</label>
+        <input id="answerStudentId" type="number" placeholder="1644973" />
+        <label for="answerExerciseId">ID ejercicio</label>
+        <input id="answerExerciseId" type="number" placeholder="1" />
+        <label for="answerText">Respuesta</label>
+        <textarea id="answerText" placeholder="correct answer"></textarea>
+        <button id="sendAnswer" style="margin-top:10px;">Enviar</button>
+        <div class="list" id="answerOutput"></div>
+        <div class="status" id="answerStatus"></div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const toArray = (maybeArr) => Array.isArray(maybeArr) ? maybeArr : (maybeArr ? [maybeArr] : []);
+
+    const renderStudent = (s) => `
+      <div class="item-card">
+        <h3>${s.name} <span class="badge">ID ${s.id}</span></h3>
+        <div class="muted">Email: ${s.email}</div>
+        <div class="muted">Edad: ${s.age} · Nivel: ${s.level}</div>
+      </div>`;
+
+    const renderExercise = (e) => `
+      <div class="item-card">
+        <h3>${e.topic} <span class="badge">${e.difficulty}</span></h3>
+        <div class="muted">${e.question}</div>
+      </div>`;
+
+    const renderAnswer = (fb) => `
+      <div class="item-card">
+        <h3>Resultado <span class="badge ${fb.correct ? 'ok' : 'bad'}">${fb.correct ? 'Correcta' : 'Incorrecta'}</span></h3>
+        <div class="muted">Score: ${fb.score}</div>
+        <div class="muted">${fb.message}</div>
+      </div>`;
+
+    const setStatus = (el, msg, ok=true) => {
+      el.textContent = msg || '';
+      el.style.color = ok ? 'var(--muted)' : '#fca5a5';
+    };
+
+    const handleError = async (res) => {
+      const text = await res.text();
+      throw new Error(text || res.statusText);
+    };
+
+    document.getElementById('loadStudents').onclick = async () => {
+      const status = document.getElementById('studentsStatus');
+      const output = document.getElementById('studentsOutput');
+      setStatus(status, 'Cargando...');
+      const id = document.getElementById('studentId').value.trim();
+      const url = id ? `/api/students/${id}` : '/api/students';
+      try {
+        const res = await fetch(url);
+        if (!res.ok) return handleError(res);
+        const data = await res.json();
+        const list = toArray(data);
+        output.innerHTML = list.length ? list.map(renderStudent).join('') : '<div class="muted">Sin resultados</div>';
+        setStatus(status, 'Listo');
+      } catch (err) {
+        setStatus(status, err.message, false);
+      }
+    };
+
+    document.getElementById('createStudent').onclick = async () => {
+      const status = document.getElementById('createStatus');
+      const output = document.getElementById('createOutput');
+      setStatus(status, 'Enviando...');
+      const payload = {
+        name: document.getElementById('newName').value,
+        age: Number(document.getElementById('newAge').value),
+        level: document.getElementById('newLevel').value,
+      };
+      try {
+        const res = await fetch('/api/students', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) return handleError(res);
+        const data = await res.json();
+        output.innerHTML = renderStudent(data);
+        setStatus(status, 'Estudiante creado (id/email generados)');
+      } catch (err) {
+        setStatus(status, err.message, false);
+      }
+    };
+
+    document.getElementById('loadExercises').onclick = async () => {
+      const status = document.getElementById('exercisesStatus');
+      const output = document.getElementById('exercisesOutput');
+      setStatus(status, 'Cargando...');
+      const diff = document.getElementById('difficulty').value;
+      const url = diff ? `/api/exercises?difficulty=${encodeURIComponent(diff)}` : '/api/exercises';
+      try {
+        const res = await fetch(url);
+        if (!res.ok) return handleError(res);
+        const data = await res.json();
+        const list = toArray(data);
+        output.innerHTML = list.length ? list.map(renderExercise).join('') : '<div class="muted">Sin resultados</div>';
+        setStatus(status, 'Listo');
+      } catch (err) {
+        setStatus(status, err.message, false);
+      }
+    };
+
+    document.getElementById('sendAnswer').onclick = async () => {
+      const status = document.getElementById('answerStatus');
+      const output = document.getElementById('answerOutput');
+      setStatus(status, 'Enviando...');
+      const payload = {
+        studentId: Number(document.getElementById('answerStudentId').value),
+        exerciseId: Number(document.getElementById('answerExerciseId').value),
+        answer: document.getElementById('answerText').value,
+      };
+      try {
+        const res = await fetch('/api/exercises/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) return handleError(res);
+        const data = await res.json();
+        output.innerHTML = renderAnswer(data);
+        setStatus(status, data.correct ? '¡Respuesta correcta!' : 'Respuesta incorrecta', data.correct);
+      } catch (err) {
+        setStatus(status, err.message, false);
+      }
+    };
+  </script>
+</body>
+</html>

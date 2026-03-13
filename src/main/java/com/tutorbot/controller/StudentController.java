@@ -30,8 +30,10 @@ public class StudentController {
     }
 
     @PostMapping
-    public Student registerStudent(@RequestBody Student student){
-        return service.registerStudent(student);
+    public Student registerStudent(@RequestBody StudentPayload payload){
+        return service.registerStudent(payload.name(), payload.age(), payload.level());
     }
+
+    public record StudentPayload(String name, int age, String level) {}
 
 }

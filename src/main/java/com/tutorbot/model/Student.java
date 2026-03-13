@@ -5,14 +5,16 @@ public class Student {
     private String name;
     private String email;
     private String level;
+    private int age;
 
     public Student() {}
 
-    public Student(int id, String name, String email, String level) {
+    public Student(int id, String name, String email, String level, int age) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.level = level;
+        this.age = age;
     }
 
     public int getId(){
@@ -45,6 +47,14 @@ public class Student {
 
     public void setLevel(String level) {
         this.level = level;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
     }
 
  }

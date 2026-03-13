@@ -38,7 +38,7 @@ public class ExerciseController {
         int exerciseId = (int) body.get("exerciseId");
         String answer = (String) body.get("answer");
 
-        return service.submitAnsert(studentId, exerciseId, answer);
+        return service.submitAnswer(studentId, exerciseId, answer);
     }
 
 }

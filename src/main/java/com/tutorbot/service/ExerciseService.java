@@ -26,20 +26,18 @@ public class ExerciseService {
                 .collect(Collectors.toList());
     }
 
-    public Feedback submitAnsert(int studentId, int exerciseId, String answer) {
-        Exercise exercise = exerciseRepository.findAll().stream()
-                .filter(ex -> ex.getId() == exerciseId)
-                .findFirst()
-                .orElse(null);
+    public Feedback submitAnswer(int studentId, int exerciseId, String answer) {
+        Exercise exercise = exerciseRepository.findById(exerciseId);
 
         if (exercise == null) {
             return new Feedback(studentId, exerciseId, answer, 0, "Exercise not found", false);
         }
 
-        // Simulate scoring logic
-        int score = answer.equalsIgnoreCase("correct answer") ? 100 : 40;
-        String message = score > 40 ? "Correct!" : "Incorrect. Try again, you can do it!";
-        boolean correct = score > 40;
+        String expected = exercise.getAnswer() == null ? "" : exercise.getAnswer().trim();
+        String provided = answer == null ? "" : answer.trim();
+        boolean correct = !expected.isEmpty() && expected.equalsIgnoreCase(provided);
+        int score = correct ? 100 : 40;
+        String message = correct ? "Correct!" : "Incorrect. Expected: " + expected;
 
         return new Feedback(studentId, exerciseId, answer, score, message, correct);
     }
