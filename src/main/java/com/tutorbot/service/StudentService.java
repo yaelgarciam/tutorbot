@@ -21,8 +21,11 @@ public class StudentService {
         return studentRepository.findById(id);
     }
 
-    //Falta agregar metodo para que el id se asigne solo
-    public void addStudent(Student student) {
+    /**
+     * Registra un nuevo estudiante y lo devuelve. Por ahora el id viene en el cuerpo.
+     */
+    public Student registerStudent(Student student) {
         studentRepository.save(student);
+        return student;
     }
 }

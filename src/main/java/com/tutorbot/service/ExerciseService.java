@@ -26,7 +26,7 @@ public class ExerciseService {
                 .collect(Collectors.toList());
     }
 
-    public Feedback submitAnsert (int studentId, int exerciseId, String answer) {
+    public Feedback submitAnsert(int studentId, int exerciseId, String answer) {
         Exercise exercise = exerciseRepository.findAll().stream()
                 .filter(ex -> ex.getId() == exerciseId)
                 .findFirst()
